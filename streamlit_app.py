@@ -6,11 +6,13 @@ from yaml.loader import SafeLoader
 from dotenv import load_dotenv
 import os
 import openai
+from io import BytesIO
+from docx import Document
 
-# Carica le variabili d'ambiente dal file .env
+# Load environment variables from .env
 load_dotenv()
 
-# Configurazione dell'autenticazione
+# Authentication setup
 with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
@@ -21,36 +23,22 @@ authenticator = stauth.Authenticate(
     config['cookie']['expiry_days']
 )
 
+# Initialize session state variables
+if 'job_ad' not in st.session_state:
+    st.session_state['job_ad'] = ""
+
 name, authentication_status, username = authenticator.login(location='sidebar')
 
 if authentication_status:
-    st.title("Job Ad Generator")
-     # Layout per il titolo e il logout sulla stessa riga
-    col1, col2, col3 = st.columns([4, 3, 1])  # Regola le proporzioni delle colonne secondo le tue preferenze
-    
-    with col1:
-        # Usa st.image per caricare l'immagine
-        st.image("xantage.jpg", caption="Powered by Xantage", use_column_width=True)
-        st.write(f'Welcome *{name}*')
-        
-    with col3:
-        # Allinea il tasto logout a destra usando un po' di padding
-        with st.container():
-            st.write("\n\n\n\n\n\n\n\n")  # Spazio per allineare meglio
-            st.write("\n\n\n\n\n\n\n\n")
-            st.write("\n\n\n\n\n\n\n\n")
-            st.write("\n\n\n\n\n\n\n\n")
-            st.write("\n\n\n\n\n\n\n\n")
-            st.write("\n\n\n\n\n\n\n\n")
-            st.write("\n\n\n\n\n\n\n\n")
-            st.write("\n\n\n\n\n\n\n\n")
-            st.write("\n\n\n\n\n\n\n\n")
-            st.write("\n\n\n\n\n\n\n\n")
-            st.write("\n\n\n\n\n\n\n\n")
-            st.write("\n\n\n\n\n\n\n\n")
-            authenticator.logout('Logout', 'main')
+    # Sidebar content
+    st.sidebar.image("xantage.jpg", caption="Powered by Xantage", use_column_width=True)
+    st.sidebar.write(f'Welcome *{name}*')
+    authenticator.logout('Logout', 'sidebar')
 
-    # Form per l'inserimento dei dati
+    # Main page content
+    st.title("Job Ad Generator")
+
+    # Form for job details
     with st.form(key='job_ad_form'):
         job_title = st.text_input("Job Title")
         about_company = st.text_area("About the Company")
@@ -64,7 +52,7 @@ if authentication_status:
         submit_button = st.form_submit_button(label='Send to AI')
 
     if submit_button:
-        # Generazione del prompt
+        # Prompt generation
         prompt = f"""
         I need you to create a job ad based on the following structure:
         Title: {job_title}\n\n
@@ -80,19 +68,54 @@ if authentication_status:
         Location: {location}
         """
 
-        # Configura la chiave API di OpenAI
+        # OpenAI API call
         client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-        # Richiesta all'API di OpenAI
+        # Request to OpenAI's API
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1000
         )
 
-        # Mostra la risposta sullo schermo
+        # Store the generated job ad in session state
+        st.session_state['job_ad'] = response.choices[0].message.content.strip()
+        st.session_state['download_clicked'] = False  # Reset the download state
+
+    # Check if there is a job ad to display
+    if st.session_state['job_ad']:
         st.write("### Generated Job Ad")
-        st.write(response.choices[0].message.content.strip())
+        st.write(st.session_state['job_ad'])
+
+        # Phase 1: Show "Save ad as .docx" button after displaying the job ad
+        save_docx_button = st.button("Save ad as .docx")
+
+        if save_docx_button:
+            # Phase 2: Show input for file name
+            file_name = st.text_input("Enter the file name (without extension)", "job_ad")
+
+            if file_name:
+                # Create a Word document
+                doc = Document()
+                doc.add_heading('Job Ad', 0)
+                doc.add_paragraph(st.session_state['job_ad'])
+
+                # Save the doc to a BytesIO object
+                doc_io = BytesIO()
+                doc.save(doc_io)
+                doc_io.seek(0)  # Move to the beginning of the BytesIO buffer
+
+                # Phase 3: Allow the user to download the .docx file with custom file name
+                st.download_button(
+                    label="Download",
+                    data=doc_io.getvalue(),
+                    file_name=f"{file_name}.docx",  # Use the user-specified file name
+                    mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    on_click=lambda: st.session_state.update({"download_clicked": True})
+                )
+    # Show confirmation message after download button is clicked
+    if st.session_state['download_clicked']:
+        st.success("File downloaded successfully")
         
 
 elif authentication_status == False:
