@@ -24,19 +24,38 @@ authenticator = stauth.Authenticate(
 name, authentication_status, username = authenticator.login(location='sidebar')
 
 if authentication_status:
-    authenticator.logout('Logout', 'main')
-    st.write(f'Welcome *{name}*')
-
     st.title("Job Ad Generator")
+     # Layout per il titolo e il logout sulla stessa riga
+    col1, col2, col3 = st.columns([4, 3, 1])  # Regola le proporzioni delle colonne secondo le tue preferenze
+    
+    with col1:
+        # Usa st.image per caricare l'immagine
+        st.image("xantage.jpg", caption="Powered by Xantage", use_column_width=True)
+        st.write(f'Welcome *{name}*')
+        
+    with col3:
+        # Allinea il tasto logout a destra usando un po' di padding
+        with st.container():
+            st.write("\n\n\n\n\n\n\n\n")  # Spazio per allineare meglio
+            st.write("\n\n\n\n\n\n\n\n")
+            st.write("\n\n\n\n\n\n\n\n")
+            st.write("\n\n\n\n\n\n\n\n")
+            st.write("\n\n\n\n\n\n\n\n")
+            st.write("\n\n\n\n\n\n\n\n")
+            st.write("\n\n\n\n\n\n\n\n")
+            st.write("\n\n\n\n\n\n\n\n")
+            st.write("\n\n\n\n\n\n\n\n")
+            st.write("\n\n\n\n\n\n\n\n")
+            st.write("\n\n\n\n\n\n\n\n")
+            st.write("\n\n\n\n\n\n\n\n")
+            authenticator.logout('Logout', 'main')
 
     # Form per l'inserimento dei dati
     with st.form(key='job_ad_form'):
         job_title = st.text_input("Job Title")
         about_company = st.text_area("About the Company")
-        #role_overview = st.text_area("Role Overview")
         qualifications = st.text_area("Qualifications")
         years_of_experience = st.text_input("Years of Experience")
-        #key_responsibilities = st.text_area("Key Responsibilities")
         benefits = st.text_area("Benefits")
         job_type = st.selectbox("Job Type", ["On-site", "Hybrid", "Remote"])
         contract_type = st.selectbox("Contract Type", ["Full-time", "Part-time", "Contract", "Internship", "Freelance"])
@@ -66,7 +85,7 @@ if authentication_status:
 
         # Richiesta all'API di OpenAI
         response = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-4",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=1000
         )
@@ -74,8 +93,10 @@ if authentication_status:
         # Mostra la risposta sullo schermo
         st.write("### Generated Job Ad")
         st.write(response.choices[0].message.content.strip())
+        
 
 elif authentication_status == False:
     st.error('Username/password is incorrect')
 elif authentication_status == None:
     st.warning('Please enter your username and password')
+
