@@ -1,0 +1,8 @@
+.env
+hashed_password.py
+password.py
+venv/
+config.yaml
+__pycache__/
+client_secret.json
+token.json
