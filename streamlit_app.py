@@ -36,10 +36,10 @@ if authentication_status:
         #role_overview = st.text_area("Role Overview")
         qualifications = st.text_area("Qualifications")
         years_of_experience = st.text_input("Years of Experience")
-        key_responsibilities = st.text_area("Key Responsibilities")
+        #key_responsibilities = st.text_area("Key Responsibilities")
         benefits = st.text_area("Benefits")
         job_type = st.selectbox("Job Type", ["On-site", "Hybrid", "Remote"])
-        contract_type = st.selectbox("Contract Type", ["Full-time", "Part-time", "Contract, Internship, Freelance"])
+        contract_type = st.selectbox("Contract Type", ["Full-time", "Part-time", "Contract", "Internship", "Freelance"])
         location = st.text_input("Location")
         
         submit_button = st.form_submit_button(label='Send to AI')
@@ -68,7 +68,7 @@ if authentication_status:
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=300
+            max_tokens=1000
         )
 
         # Mostra la risposta sullo schermo
