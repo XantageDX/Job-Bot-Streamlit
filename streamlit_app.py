@@ -32,7 +32,7 @@ if 'file_name' not in st.session_state:
 if 'download_clicked' not in st.session_state:
     st.session_state['download_clicked'] = False
 
-name, authentication_status, username = authenticator.login(location='sidebar')
+name, authentication_status, username = authenticator.login('Login form', location='sidebar')
 
 if authentication_status:
     # Sidebar content
