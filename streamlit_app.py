@@ -9,7 +9,7 @@ from io import BytesIO
 from docx import Document
 
 # Load environment variables from .env
-load_dotenv()
+#load_dotenv()
 
 # Authentication setup
 with open('config.yaml') as file:
@@ -76,11 +76,13 @@ if authentication_status:
             """
 
             # OpenAI API call
-            client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+            #client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+            openai_api_key = st.secrets["OPENAI_API_KEY"]  # Accessing the API key from Streamlit secrets
+            client = openai.OpenAI(api_key=openai_api_key)
 
             # Request to OpenAI's API
             response = client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=1000
             )
