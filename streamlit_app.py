@@ -9,7 +9,7 @@ from io import BytesIO
 from docx import Document
 
 # Load environment variables from .env
-load_dotenv()
+#load_dotenv()
 
 # Authentication setup
 with open('config.yaml') as file:
@@ -75,8 +75,12 @@ if authentication_status:
             Location: {location}
             """
 
+
+            # Accedi al segreto direttamente dal secrets manager di Streamlit Cloud
+            openai_api_key = st.secrets["OPENAI_API_KEY"]
+            client = openai.OpenAI(api_key=openai_api_key)
             # OpenAI API call
-            client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+            #client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
             # Request to OpenAI's API
             response = client.chat.completions.create(
