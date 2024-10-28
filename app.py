@@ -40,6 +40,7 @@ def login():
 
                     if check_password(password, hashed_password):
                         st.session_state["authenticated"] = True
+                        st.session_state["username"] = username  # Store username in session state
                         st.sidebar.success(f"Welcome, {username}!")
                     else:
                         st.sidebar.error("Incorrect password.")
@@ -47,8 +48,8 @@ def login():
                     st.sidebar.error("User not found.")
     else:
         st.sidebar.image("xantage.jpg", caption="Powered by Xantage", use_column_width=True)
-        st.sidebar.success(f"Welcome, {username}!")
-        st.sidebar.button("Log Out", on_click=lambda: st.session_state.update(authenticated=False))
+        st.sidebar.success(f"Welcome, {st.session_state['username']}!")
+        st.sidebar.button("Log Out", on_click=lambda: st.session_state.update(authenticated=False, username=""))
 
 # Display login form in the sidebar and check authentication
 login()
